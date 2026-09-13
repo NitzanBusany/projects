@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Lang } from '../i18n/ui';
+import { localizePath, useTranslations } from '../i18n/utils';
+import { breadcrumbSchema, buildGraph, publisherSchema, websiteSchema } from '../lib/seo';
+import { getPosts, getTags } from '../lib/posts';
+import PostCard from './PostCard.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const posts = await getPosts(lang);
+const tags = await getTags(lang);
+
+const alternates = { he: '/blog', en: '/en/blog' };
+
+const jsonLd = buildGraph([
+  websiteSchema(lang, Astro.site),
+  publisherSchema(lang, Astro.site),
+  breadcrumbSchema(
+    [
+      { name: t('nav.home'), url: localizePath(lang, '/') },
+      { name: t('blog.title'), url: localizePath(lang, '/blog') },
+    ],
+    Astro.site,
+  ),
+  {
+    '@type': 'Blog',
+    name: t('blog.title'),
+    description: t('blog.description'),
+    blogPost: posts.slice(0, 20).map((post) => ({
+      '@type': 'BlogPosting',
+      headline: post.data.title,
+      datePublished: post.data.pubDate.toISOString(),
+    })),
+  },
+]);
+---
+
+<BaseLayout
+  title={t('blog.title')}
+  description={t('blog.description')}
+  lang={lang}
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <div class="wrap">
+    <div class="hero">
+      <h1>{t('blog.title')}</h1>
+      <p>{t('blog.description')}</p>
+    </div>
+
+    {
+      tags.length > 0 && (
+        <section aria-labelledby="tags" style="margin-block-end: 2rem;">
+          <h2 id="tags" class="visually-hidden">
+            {t('tags.title')}
+          </h2>
+          <ul class="tag-list">
+            {tags.map(({ tag, count }) => (
+              <li>
+                <a class="tag" href={localizePath(lang, `/tags/${encodeURIComponent(tag)}`)}>
+                  {tag} ({count})
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      posts.length === 0 ? (
+        <p>{t('blog.empty')}</p>
+      ) : (
+        <ul class="post-grid">
+          {posts.map((post) => (
+            <PostCard post={post} lang={lang} />
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</BaseLayout>

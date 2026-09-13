@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b3c5d"/>
+      <stop offset="100%" stop-color="#0d6ea8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#sky)"/>
+  <path d="M0 470 L250 300 L400 400 L620 230 L850 420 L1010 330 L1200 470 L1200 630 L0 630 Z" fill="#ffffff" opacity="0.92"/>
+  <path d="M620 230 L700 300 L660 315 L600 280 Z" fill="#dfe9f2"/>
+  <text x="600" y="180" font-family="Arial, Helvetica, sans-serif" font-size="86" font-weight="bold" fill="#ffffff" text-anchor="middle">Ski Professor</text>
+  <text x="600" y="245" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#cfe4f2" text-anchor="middle">סקי פרופסור</text>
+</svg>

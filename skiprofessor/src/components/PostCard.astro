@@ -1,0 +1,43 @@
+---
+import type { Lang } from '../i18n/ui';
+import { formatDate, isoDate, localizePath, useTranslations } from '../i18n/utils';
+import { postSlug, type Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+  lang: Lang;
+  /** Use h2 on list pages, h3 when nested under another heading. */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { post, lang, headingLevel = 'h2' } = Astro.props;
+const t = useTranslations(lang);
+const Heading = headingLevel;
+const href = localizePath(lang, `/blog/${postSlug(post)}`);
+// Arrow glyphs are not mirrored automatically by the bidi algorithm, so pick
+// the one that points "forward" for the reader.
+const forwardArrow = lang === 'he' ? '\u2190' : '\u2192';
+---
+
+<li class="post-card">
+  <p class="post-meta">
+    <time datetime={isoDate(post.data.pubDate)}>{formatDate(post.data.pubDate, lang)}</time>
+    {
+      post.data.tags.length > 0 && (
+        <>
+          <span class="post-meta__sep" aria-hidden="true">
+            &middot;
+          </span>
+          <span>{post.data.tags.slice(0, 2).join(', ')}</span>
+        </>
+      )
+    }
+  </p>
+  <Heading><a href={href}>{post.data.title}</a></Heading>
+  <p>{post.data.description}</p>
+  <p class="post-meta">
+    <a href={href} aria-label={`${t('home.readMore')}: ${post.data.title}`}>
+      {t('home.readMore')} {forwardArrow}
+    </a>
+  </p>
+</li>

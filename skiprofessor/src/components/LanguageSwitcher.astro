@@ -1,0 +1,39 @@
+---
+import { languages, localeMeta, type Lang } from '../i18n/ui';
+import { localizePath, stripLocale, useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  alternates: Partial<Record<Lang, string>>;
+}
+
+const { lang, alternates } = Astro.props;
+const t = useTranslations(lang);
+
+const others = (Object.keys(languages) as Lang[]).filter((code) => code !== lang);
+
+/**
+ * Prefer the explicit alternate for this page (a post's translated slug may
+ * differ). When the page has no counterpart, fall back to the same route in
+ * the other locale rather than dropping the user on the homepage.
+ */
+function hrefFor(code: Lang): string {
+  return alternates[code] ?? localizePath(code, stripLocale(Astro.url.pathname));
+}
+---
+
+{
+  others.map((code) => (
+    <a
+      class="lang-switch"
+      href={hrefFor(code)}
+      hreflang={localeMeta[code].hreflang}
+      lang={localeMeta[code].htmlLang}
+      dir={localeMeta[code].dir}
+      rel="alternate"
+      aria-label={`${t('lang.label')}: ${languages[code]}`}
+    >
+      {languages[code]}
+    </a>
+  ))
+}

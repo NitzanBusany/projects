@@ -1,0 +1,26 @@
+---
+import { SITE } from '../config.js';
+import type { Lang } from '../i18n/ui';
+import { localizePath, useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+const rss = lang === 'he' ? '/rss.xml' : '/en/rss.xml';
+---
+
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <p>&copy; {year} {SITE.name[lang]} &middot; {t('footer.rights')}</p>
+    <nav aria-label={t('footer.rss')}>
+      <a href={localizePath(lang, '/blog')}>{t('nav.blog')}</a>
+      <a href={localizePath(lang, '/about')}>{t('nav.about')}</a>
+      <a href={rss}>{t('footer.rss')}</a>
+      <a href="/sitemap-index.xml">Sitemap</a>
+    </nav>
+  </div>
+</footer>

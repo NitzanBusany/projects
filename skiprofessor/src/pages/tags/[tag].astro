@@ -1,0 +1,33 @@
+---
+import type { GetStaticPaths } from 'astro';
+import TagPage from '../../components/TagPage.astro';
+import { getPosts, getTags, type Post } from '../../lib/posts';
+
+interface Props {
+  tag: string;
+  posts: Post[];
+  hasTranslation: boolean;
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const [posts, tags, otherTags] = await Promise.all([
+    getPosts('he'),
+    getTags('he'),
+    getTags('en'),
+  ]);
+  const otherTagSet = new Set(otherTags.map(({ tag }) => tag));
+
+  return tags.map(({ tag }) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts.filter((post) => post.data.tags.includes(tag)),
+      hasTranslation: otherTagSet.has(tag),
+    },
+  }));
+};
+
+const { tag, posts, hasTranslation } = Astro.props;
+---
+
+<TagPage lang="he" tag={tag} posts={posts} hasTranslation={hasTranslation} />

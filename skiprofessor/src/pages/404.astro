@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { useTranslations } from '../i18n/utils';
+
+// 404s are served for any URL, so they default to the primary locale.
+const lang = 'he' as const;
+const t = useTranslations(lang);
+---
+
+<BaseLayout
+  title={t('404.title')}
+  description={t('404.body')}
+  lang={lang}
+  alternates={{ he: '/404' }}
+  noindex
+>
+  <div class="wrap prose">
+    <h1>{t('404.title')}</h1>
+    <p>{t('404.body')}</p>
+    <p><a class="button" href="/">{t('404.home')}</a></p>
+  </div>
+</BaseLayout>

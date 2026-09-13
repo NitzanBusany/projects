@@ -1,0 +1,125 @@
+---
+import { SITE } from '../config.js';
+import { localeMeta, type Lang } from '../i18n/ui';
+import { absoluteUrl } from '../i18n/utils';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  lang: Lang;
+  /**
+   * Localized paths for this page, keyed by locale — already locale-prefixed
+   * (`/blog`, `/en/blog`). The entry for the current `lang` is the canonical
+   * URL; the rest become hreflang alternates. Posts that exist in only one
+   * language simply pass one entry, and no alternates are emitted.
+   */
+  alternates: Partial<Record<Lang, string>>;
+  /** OG type — `article` on posts, `website` everywhere else. */
+  type?: 'website' | 'article';
+  image?: string;
+  noindex?: boolean;
+  /** Pre-serialized JSON-LD `@graph`, from src/lib/seo.ts. */
+  jsonLd?: string;
+}
+
+const {
+  title,
+  description,
+  lang,
+  alternates,
+  type = 'website',
+  image = SITE.defaultImage,
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const meta = localeMeta[lang];
+const canonicalPath = alternates[lang] ?? Astro.url.pathname;
+const canonical = absoluteUrl(canonicalPath, Astro.site);
+const ogImage = absoluteUrl(image, Astro.site);
+
+const alternateEntries = (Object.entries(alternates) as Array<[Lang, string]>).filter(
+  ([, path]) => Boolean(path),
+);
+
+// Only claim alternates when the page genuinely exists in more than one
+// language — a self-referencing hreflang on a single-language page is noise.
+const hasAlternates = alternateEntries.length > 1;
+
+const otherLocales = alternateEntries.filter(([code]) => code !== lang);
+const siteName = SITE.name[lang];
+const titleWithBrand = title === siteName ? title : `${title} | ${siteName}`;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<title>{titleWithBrand}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+{
+  !noindex && (
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+  )
+}
+
+{/* Language and region targeting. hreflang is the signal search engines
+    actually act on; x-default points at the Hebrew site for everyone else. */}
+{
+  hasAlternates && (
+    <>
+      {alternateEntries.map(([code, path]) => (
+        <link
+          rel="alternate"
+          hreflang={localeMeta[code].hreflang}
+          href={absoluteUrl(path, Astro.site)}
+        />
+      ))}
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={absoluteUrl(alternates.he ?? canonicalPath, Astro.site)}
+      />
+    </>
+  )
+}
+
+{/* Legacy geo hints. Modern crawlers ignore these, but some SEO audit tools
+    and directories still read them, and they cost two lines. */}
+<meta name="geo.region" content={SITE.region.country} />
+<meta name="geo.placename" content={SITE.region.countryName} />
+
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content={meta.ogLocale} />
+{otherLocales.map(([code]) => (
+  <meta property="og:locale:alternate" content={localeMeta[code].ogLocale} />
+))}
+<meta property="og:image" content={ogImage} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/favicon.svg" />
+
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title={`${siteName} — RSS`}
+  href={absoluteUrl(lang === 'he' ? '/rss.xml' : '/en/rss.xml', Astro.site)}
+/>
+
+{jsonLd && <script type="application/ld+json" set:html={jsonLd} is:inline />}

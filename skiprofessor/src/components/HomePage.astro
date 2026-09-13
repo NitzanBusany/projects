@@ -1,0 +1,60 @@
+---
+import { SITE } from '../config.js';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Lang } from '../i18n/ui';
+import { localizePath, useTranslations } from '../i18n/utils';
+import { buildGraph, publisherSchema, authorSchema, websiteSchema } from '../lib/seo';
+import { getPosts } from '../lib/posts';
+import PostCard from './PostCard.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const posts = (await getPosts(lang)).slice(0, 6);
+
+const alternates = { he: '/', en: '/en' };
+
+const jsonLd = buildGraph([
+  websiteSchema(lang, Astro.site),
+  publisherSchema(lang, Astro.site),
+  authorSchema(lang, Astro.site),
+]);
+---
+
+<BaseLayout
+  title={SITE.name[lang]}
+  description={t('home.intro')}
+  lang={lang}
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <div class="wrap">
+    <div class="hero">
+      <h1>{t('home.tagline')}</h1>
+      <p>{t('home.intro')}</p>
+    </div>
+
+    <section aria-labelledby="latest">
+      <div class="section-head">
+        <h2 id="latest">{t('home.latest')}</h2>
+        <a href={localizePath(lang, '/blog')}>{t('home.allPosts')}</a>
+      </div>
+
+      {
+        posts.length === 0 ? (
+          <p>{t('blog.empty')}</p>
+        ) : (
+          <ul class="post-grid">
+            {posts.map((post) => (
+              <PostCard post={post} lang={lang} headingLevel="h3" />
+            ))}
+          </ul>
+        )
+      }
+    </section>
+  </div>
+</BaseLayout>

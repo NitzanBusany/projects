@@ -1,0 +1,52 @@
+---
+import { SITE } from '../config.js';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Lang } from '../i18n/ui';
+import { localizePath, useTranslations } from '../i18n/utils';
+import { authorSchema, breadcrumbSchema, buildGraph, publisherSchema } from '../lib/seo';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const alternates = { he: '/about', en: '/en/about' };
+
+const jsonLd = buildGraph([
+  publisherSchema(lang, Astro.site),
+  authorSchema(lang, Astro.site),
+  breadcrumbSchema(
+    [
+      { name: t('nav.home'), url: localizePath(lang, '/') },
+      { name: t('about.title'), url: localizePath(lang, '/about') },
+    ],
+    Astro.site,
+  ),
+]);
+
+const description = t('home.intro');
+---
+
+<BaseLayout
+  title={t('about.title')}
+  description={description}
+  lang={lang}
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <div class="wrap">
+    <article class="prose">
+      <h1>{t('about.title')}</h1>
+      <!-- Placeholder copy. Replace with the real bio. -->
+      <p>{description}</p>
+      <p>
+        {
+          lang === 'he'
+            ? `הדף הזה עדיין ממתין לתוכן אמיתי. כאן ייכנס הסיפור של ${SITE.author.name.he} — רקע, ניסיון והדרך לסקי.`
+            : `This page is still a placeholder. It will hold ${SITE.author.name.en}'s story — background, experience, and how the skiing started.`
+        }
+      </p>
+    </article>
+  </div>
+</BaseLayout>

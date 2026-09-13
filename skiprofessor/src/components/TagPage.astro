@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Lang } from '../i18n/ui';
+import { localizePath, useTranslations } from '../i18n/utils';
+import { breadcrumbSchema, buildGraph, publisherSchema } from '../lib/seo';
+import type { Post } from '../lib/posts';
+import PostCard from './PostCard.astro';
+
+interface Props {
+  lang: Lang;
+  tag: string;
+  posts: Post[];
+  /** True when the other locale uses this exact tag, so hreflang is honest. */
+  hasTranslation: boolean;
+}
+
+const { lang, tag, posts, hasTranslation } = Astro.props;
+const t = useTranslations(lang);
+
+const encoded = encodeURIComponent(tag);
+const alternates: Partial<Record<Lang, string>> = {
+  [lang]: localizePath(lang, `/tags/${encoded}`),
+};
+if (hasTranslation) {
+  const other: Lang = lang === 'he' ? 'en' : 'he';
+  alternates[other] = localizePath(other, `/tags/${encoded}`);
+}
+
+const title = `${t('tags.postsTagged')}: ${tag}`;
+const description = `${t('tags.postsTagged')} "${tag}" — ${t('blog.description')}`;
+
+const jsonLd = buildGraph([
+  publisherSchema(lang, Astro.site),
+  breadcrumbSchema(
+    [
+      { name: t('nav.home'), url: localizePath(lang, '/') },
+      { name: t('blog.title'), url: localizePath(lang, '/blog') },
+      { name: tag, url: localizePath(lang, `/tags/${encoded}`) },
+    ],
+    Astro.site,
+  ),
+]);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  lang={lang}
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <div class="wrap">
+    <div class="hero">
+      <h1>{title}</h1>
+      <p><a href={localizePath(lang, '/blog')}>{t('blog.backToBlog')}</a></p>
+    </div>
+    <ul class="post-grid">
+      {posts.map((post) => <PostCard post={post} lang={lang} />)}
+    </ul>
+  </div>
+</BaseLayout>

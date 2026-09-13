@@ -1,0 +1,54 @@
+---
+import { SITE } from '../config.js';
+import type { Lang } from '../i18n/ui';
+import { localizePath, useTranslations } from '../i18n/utils';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+
+interface Props {
+  lang: Lang;
+  /** Locale-prefixed paths for this page, used by the language switcher. */
+  alternates: Partial<Record<Lang, string>>;
+}
+
+const { lang, alternates } = Astro.props;
+const t = useTranslations(lang);
+
+const links = [
+  { href: localizePath(lang, '/'), label: t('nav.home') },
+  { href: localizePath(lang, '/blog'), label: t('nav.blog') },
+  { href: localizePath(lang, '/about'), label: t('nav.about') },
+];
+
+const here = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === here;
+---
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href={localizePath(lang, '/')}>
+      <svg
+        class="brand__mark"
+        viewBox="0 0 32 32"
+        aria-hidden="true"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M16 3 27 25H5L16 3Z" fill="currentColor" opacity="0.15" />
+        <path d="M16 3 27 25H5L16 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+        <path d="M11 15.5h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      <span>{SITE.name[lang]}</span>
+    </a>
+
+    <nav class="site-nav" aria-label={t('nav.menu')}>
+      {
+        links.map((link) => (
+          <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+            {link.label}
+          </a>
+        ))
+      }
+      <LanguageSwitcher lang={lang} alternates={alternates} />
+    </nav>
+  </div>
+</header>

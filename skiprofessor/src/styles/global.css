@@ -1,0 +1,575 @@
+/*
+ * Ski Professor — global styles.
+ *
+ * Everything directional uses CSS logical properties (inline-start/end,
+ * margin-inline, padding-block) so the same rules lay out correctly in Hebrew
+ * RTL and English LTR without a second stylesheet or an `[dir=rtl]` override
+ * block.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Palette — cold blues and snow neutrals. */
+  --c-bg: #ffffff;
+  --c-bg-subtle: #f4f7fb;
+  --c-bg-raised: #ffffff;
+  --c-border: #dfe6ef;
+  --c-text: #16212e;
+  --c-text-muted: #5a6b7e;
+  --c-accent: #0d6ea8;
+  --c-accent-hover: #0a557f;
+  --c-accent-contrast: #ffffff;
+  --c-highlight: #eaf4fb;
+
+  --font-sans: 'Assistant', 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Rubik, 'Helvetica Neue', Arial, 'Noto Sans Hebrew', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --measure: 68ch;
+  --page-max: 1080px;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgb(22 33 46 / 6%), 0 8px 24px rgb(22 33 46 / 6%);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-bg: #0e151d;
+    --c-bg-subtle: #141d28;
+    --c-bg-raised: #17212d;
+    --c-border: #26323f;
+    --c-text: #e8eef5;
+    --c-text-muted: #9aabbd;
+    --c-accent: #58b6e8;
+    --c-accent-hover: #82cbf2;
+    --c-accent-contrast: #0e151d;
+    --c-highlight: #162834;
+    --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 30%);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Hebrew sets slightly tighter and benefits from a touch more size. */
+html[lang='he'] body {
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  margin-block: 0 var(--space-3);
+  text-wrap: balance;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 1.3rem + 2.4vw, 2.75rem);
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.8rem);
+  margin-block-start: var(--space-7);
+}
+h3 {
+  font-size: 1.2rem;
+  margin-block-start: var(--space-5);
+}
+
+p,
+ul,
+ol {
+  margin-block: 0 var(--space-4);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--c-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  color: var(--c-accent-hover);
+}
+
+:focus-visible {
+  outline: 3px solid var(--c-accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+hr {
+  border: 0;
+  border-block-start: 1px solid var(--c-border);
+  margin-block: var(--space-7);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--c-bg-subtle);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  /* Code is always LTR, even inside Hebrew paragraphs. */
+  direction: ltr;
+  unicode-bidi: embed;
+  display: inline-block;
+}
+
+pre {
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  direction: ltr;
+  text-align: start;
+  border: 1px solid var(--c-border);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+blockquote {
+  margin-inline: 0;
+  margin-block: var(--space-5);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 3px solid var(--c-accent);
+  color: var(--c-text-muted);
+  font-style: italic;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-block: var(--space-5);
+}
+
+th,
+td {
+  border: 1px solid var(--c-border);
+  padding: var(--space-2) var(--space-3);
+  text-align: start;
+}
+
+th {
+  background: var(--c-bg-subtle);
+}
+
+/* ---------- layout primitives ---------- */
+
+.wrap {
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--space-5);
+}
+
+main {
+  flex: 1;
+  padding-block: var(--space-7) var(--space-8);
+}
+
+.prose {
+  max-width: var(--measure);
+}
+
+.skip-link {
+  position: absolute;
+  inset-block-start: -100vh;
+  inset-inline-start: var(--space-4);
+  z-index: 100;
+  background: var(--c-accent);
+  color: var(--c-accent-contrast);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.skip-link:focus {
+  inset-block-start: 0;
+  color: var(--c-accent-contrast);
+}
+
+/* ---------- header ---------- */
+
+.site-header {
+  border-block-end: 1px solid var(--c-border);
+  background: color-mix(in srgb, var(--c-bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 20;
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  padding-block: var(--space-4);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--c-text);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--c-accent);
+}
+
+.brand__mark {
+  inline-size: 1.6rem;
+  block-size: 1.6rem;
+  flex: none;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-inline-start: auto;
+  flex-wrap: wrap;
+}
+
+.site-nav a {
+  color: var(--c-text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current='page'] {
+  color: var(--c-accent);
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  text-decoration: none;
+  background: var(--c-bg-raised);
+}
+
+.lang-switch:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  padding-block: var(--space-6) var(--space-7);
+  border-block-end: 1px solid var(--c-border);
+  margin-block-end: var(--space-7);
+}
+
+.hero p {
+  max-width: var(--measure);
+  color: var(--c-text-muted);
+  font-size: 1.1em;
+}
+
+/* ---------- post list ---------- */
+
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-5);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.post-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--c-bg-raised);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .post-card:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.post-card:hover {
+  border-color: var(--c-accent);
+}
+
+.post-card h2,
+.post-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.post-card a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-card a:hover {
+  color: var(--c-accent);
+}
+
+.post-card p {
+  margin: 0;
+  color: var(--c-text-muted);
+  font-size: 0.98rem;
+}
+
+.post-meta {
+  color: var(--c-text-muted);
+  font-size: 0.88rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+}
+
+.post-meta__sep {
+  opacity: 0.5;
+}
+
+/* ---------- tags ---------- */
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tag {
+  display: inline-block;
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-muted);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.tag:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+
+/* ---------- callouts ---------- */
+
+.callout {
+  background: var(--c-highlight);
+  border: 1px solid var(--c-border);
+  border-inline-start: 4px solid var(--c-accent);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-5);
+  margin-block: var(--space-6);
+}
+
+.callout h2 {
+  margin-block-start: 0;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-accent);
+}
+
+.callout ul {
+  margin-block-end: 0;
+  padding-inline-start: 1.2em;
+}
+
+.callout li + li {
+  margin-block-start: var(--space-2);
+}
+
+.translation-note {
+  font-size: 0.95rem;
+  background: var(--c-bg-subtle);
+  border: 1px dashed var(--c-border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  margin-block: var(--space-5);
+}
+
+/* The note points at the other language, so it renders in that direction. */
+.translation-note[data-dir='ltr'] {
+  direction: ltr;
+  text-align: start;
+}
+
+.translation-note[data-dir='rtl'] {
+  direction: rtl;
+  text-align: start;
+}
+
+/* ---------- FAQ ---------- */
+
+.faq details {
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  background: var(--c-bg-raised);
+}
+
+.faq details + details {
+  margin-block-start: var(--space-3);
+}
+
+.faq summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.faq summary::marker {
+  color: var(--c-accent);
+}
+
+.faq details p {
+  margin-block: var(--space-3) 0;
+  color: var(--c-text-muted);
+}
+
+/* ---------- footer ---------- */
+
+.site-footer {
+  border-block-start: 1px solid var(--c-border);
+  background: var(--c-bg-subtle);
+  padding-block: var(--space-6);
+  color: var(--c-text-muted);
+  font-size: 0.92rem;
+}
+
+.site-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.site-footer a {
+  color: var(--c-text-muted);
+}
+
+.site-footer a:hover {
+  color: var(--c-accent);
+}
+
+.site-footer nav {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* ---------- misc ---------- */
+
+.button {
+  display: inline-block;
+  background: var(--c-accent);
+  color: var(--c-accent-contrast);
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.button:hover {
+  background: var(--c-accent-hover);
+  color: var(--c-accent-contrast);
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-block-end: var(--space-5);
+}
+
+.section-head h2 {
+  margin: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

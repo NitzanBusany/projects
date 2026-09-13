@@ -1,0 +1,37 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { localeMeta, type Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  title: string;
+  description: string;
+  lang: Lang;
+  alternates: Partial<Record<Lang, string>>;
+  type?: 'website' | 'article';
+  image?: string;
+  noindex?: boolean;
+  jsonLd?: string;
+}
+
+const { lang, alternates, ...head } = Astro.props;
+const meta = localeMeta[lang];
+const t = useTranslations(lang);
+---
+
+<!doctype html>
+<html lang={meta.htmlLang} dir={meta.dir}>
+  <head>
+    <BaseHead lang={lang} alternates={alternates} {...head} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t('nav.skipToContent')}</a>
+    <Header lang={lang} alternates={alternates} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>
